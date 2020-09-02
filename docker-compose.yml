@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  db_mysql:
+    image: mariadb:10.4.14
+    volumes:
+      - mysql_data:/var/lib/mariadb/data
+    environment:
+      MYSQL_DATABASE: mobre
+      MYSQL_USER: mobre
+      MYSQL_PASSWORD: mobre
+      MYSQL_ROOT_PASSWORD: mobre
+
+  mobre_app:
+    build: .
+    volumes:
+      - static:/mobre/mobre/static
+      - .:/code
+    depends_on:
+      - db_mysql
+
+  nginx:
+    image: nginx:1.13
+    ports:
+      - 8000:80
+    volumes:
+      - ./config/nginx/conf.d:/etc/nginx/conf.d
+      - static:/mobre/mobre/static
+    depends_on:
+      - mobre_app
+
+volumes:
+  .:
+  mysql_data:
+  static:
